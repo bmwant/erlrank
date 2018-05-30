@@ -5,7 +5,12 @@ start() ->
     {ok, File} = file:open("input.txt", [read]),
     NumbersCount = io:get_line(File, ''),
     Numbers = io:get_line(File, ''),
-    io:format("~p~p~n", [NumbersCount, Numbers]),
     NumbersList = string:lexemes(Numbers, " "),
-    io:format("~p~n", [NumbersList]),
+    Result = sum(NumbersList, 0),
+    io:format("~p~n", [Result]),
     file:close(File).
+
+sum([Head|Tail], Acc) ->
+    sum(Tail, Acc+erlang:list_to_integer(Head));
+sum([], Acc) ->
+    Acc.
