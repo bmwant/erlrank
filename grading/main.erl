@@ -18,4 +18,15 @@ read_arr(File, _, Acc) ->
     lists:reverse(Acc).
 
 convert_grade(Grade) ->
-    Grade.
+    if 
+        Grade < 38 ->
+            Grade;
+        true ->
+            ClosestGrade = ceil(Grade/5)*5,
+            if 
+                ClosestGrade - Grade < 3 ->
+                    ClosestGrade;
+                true ->
+                    Grade
+            end
+    end.
