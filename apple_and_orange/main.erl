@@ -3,10 +3,10 @@
 -export([start/0]).
 
 start() ->
-    {ok, File} = file:open("input11.txt", [read]),
+    {ok, File} = file:open("input.txt", [read]),
     [S, T, A, B, M, N | Values] = get_all_lines(File),
     Apples = lists:sublist(Values, M),
-    Oranges = lists:sublist(Values, M+N-1, N),
+    Oranges = lists:sublist(Values, M-1, N),
     ApplesHits = count_hits(A, S, T, Apples, 0),
     OrangesHits = count_hits(B, S, T, Oranges, 0),
     io:format("~p~n~p~n", [ApplesHits, OrangesHits]),
