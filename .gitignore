@@ -1,6 +1,3 @@
-
-# Created by https://www.gitignore.io/api/erlang
-
 ### Erlang ###
 .eunit
 deps
@@ -30,5 +27,4 @@ Session.vim
 # auto-generated tag files
 tags
 
-
-# End of https://www.gitignore.io/api/vim
+.idea/
