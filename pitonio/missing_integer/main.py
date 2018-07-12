@@ -14,7 +14,7 @@ def solution(arr):
     size = len(arr)
     markers = [0] * size
     for elem in arr:
-        if elem > 0 and elem <= size:
+        if 0 < elem <= size:
             markers[elem-1] = 1
 
     for i, value in enumerate(markers, 1):

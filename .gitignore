@@ -10,11 +10,6 @@ rel/example_project
 .concrete/DEV_MODE
 .rebar
 
-
-# End of https://www.gitignore.io/api/erlang
-
-# Created by https://www.gitignore.io/api/vim
-
 ### Vim ###
 # swap
 .sw[a-p]
@@ -26,5 +21,8 @@ Session.vim
 *~
 # auto-generated tag files
 tags
+
+### Python ###
+__pycache__
 
 .idea/
