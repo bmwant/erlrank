@@ -1,7 +1,8 @@
 import itertools
+from functools import partial
 
 
-def f_buy(df):
+def f_buy_safe_case(df):
     price_drops = 0
     desired_drops = 2
     min_value = df.iloc[0]['low']
@@ -14,7 +15,8 @@ def f_buy(df):
             return low_value
 
 
-def f_sell(df, v, diff):
+def f_sell_on_threshold(df, v, *, diff):
+    # import pdb; pdb.set_trace()
     for i in range(len(df.index)):
         value = df.iloc[i]['high']
         if value - v >= diff:
@@ -22,102 +24,55 @@ def f_sell(df, v, diff):
     return value
 
 
-def calculate_safe_case(df):
+def calculate_(df, period, f_buy, f_sell):
     total_profit = 0
     success_cycles = 0
-    do_nothing_cycles = 0
-    bad_cycles = 0  # we we do not buy anything
-    T = 7
-    diff = 200  # we want at least gain 200$ for each cycle
+    standby_cycles = 0
+    bad_cycles = 0
 
-    for w in itertools.count():
-        if T*(w+2) > len(df.index):
+    for i in itertools.count():
+        if period*(i+2) > len(df.index):
             break
-        week_t0 = df[T*w:T*(w+1)]
-        week_t1 = df[T*(w+1):T*(w+2)]
-        v_t0 = f_buy(week_t0)
+
+        period_t0 = df[period*i:period*(i+1)]
+        period_t1 = df[period*(i+1):period*(i+2)]
+        v_t0 = f_buy(period_t0)
         if v_t0 is None:
-            do_nothing_cycles += 1
+            standby_cycles += 1
             continue
 
-        v_t1 = f_sell(week_t1, v_t0, diff)
+        v_t1 = f_sell(period_t1, v_t0)
+
         profit = v_t1 - v_t0
         if profit > 0:
             success_cycles += 1
         else:
-            print('We lost {}$'.format(profit))
             bad_cycles += 1
         total_profit += profit
 
-    total_cycles = success_cycles + bad_cycles + do_nothing_cycles
+    total_cycles = success_cycles + bad_cycles + standby_cycles
     print(
-        'Profit: {profit}. Good cycles: {good_cycles}/{total_cycles}. '
-        'Bad cycles: {bad_cycles}/{total_cycles}. Do nothing: {do_nothing}/{total_cycles}'.format(
-            profit=total_profit,
-            good_cycles=success_cycles,
-            do_nothing=do_nothing_cycles,
+        'Profit: {total_profit}. '
+        'Success cycles: {success_cycles}/{total_cycles}. '
+        'Bad cycles: {bad_cycles}/{total_cycles}. '
+        'Standby cycles: {standby_cycles}/{total_cycles}'.format(
+            total_profit=total_profit,
+            success_cycles=success_cycles,
             bad_cycles=bad_cycles,
+            standby_cycles=standby_cycles,
             total_cycles=total_cycles,
-    ))
+        ))
 
 
-def calculate_worst_case(df):
-    total_profit = 0
-    success_cycles = 0
-    bad_cycles = 0
-    T = 7
-    for w in itertools.count():
-        if T*(w+2) > len(df.index):
-            break
-        week_t0 = df[T*w:T*(w+1)]
-        week_t1 = df[T*(w+1):T*(w+2)]
-        v_t1_min = week_t1['low'].min()
-        v_t0_max = week_t0['high'].max()
-        profit = v_t1_min - v_t0_max
-        if profit > 0:
-            success_cycles += 1
-            print('Wow! We found success week v_min(t1)={} > v_max(t0)={}'.format(v_t1_min, v_t0_max))
-        else:
-            # print('Bad week: v_min(t1)={} < v_max(t0)={}'.format(v_t1_min, v_t0_max))
-            bad_cycles += 1
-        total_profit += profit
-
-    total_cycles = success_cycles + bad_cycles
-    print(
-        'Profit: {profit}. Good cycles: {good_cycles}/{total_cycles}. '
-        'Bad cycles: {bad_cycles}/{total_cycles}'.format(
-            profit=total_profit,
-            good_cycles=success_cycles,
-            bad_cycles=bad_cycles,
-            total_cycles=total_cycles,
-    ))
+f_buy_best_case = lambda df, *args: df['low'].min()
+f_sell_best_case = lambda df, *args: df['high'].max()
+calculate_best_case = partial(calculate_, f_buy=f_buy_best_case, f_sell=f_sell_best_case)
 
 
-def calculate_best_case(df):
-    total_profit = 0
-    success_cycles = 0
-    bad_cycles = 0
-    for w in itertools.count():
-        if 7*(w+2) > len(df.index):
-            break
-        week_t0 = df[7*w:7*(w+1)]
-        week_t1 = df[7*(w+1):7*(w+2)]
-        v_t0_min = week_t0['low'].min()
-        v_t1_max = week_t1['high'].max()
-        profit = v_t1_max - v_t0_min
-        if profit > 0:
-            success_cycles += 1
-        else:
-            print('Bad week: v_max(t1)={} < v_min(t0)={}'.format(v_t1_max, v_t0_min))
-            bad_cycles += 1
-        total_profit += profit
+f_buy_worst_case = lambda df, *args: df['high'].max()
+f_sell_worst_case = lambda df, *args: df['low'].min()
+calculate_worst_case = partial(calculate_, f_buy=f_buy_worst_case, f_sell=f_sell_worst_case)
 
-    total_cycles = success_cycles + bad_cycles
-    print(
-        'Profit: {profit}. Good cycles: {good_cycles}/{total_cycles}. '
-        'Bad cycles: {bad_cycles}/{total_cycles}'.format(
-            profit=total_profit,
-            good_cycles=success_cycles,
-            bad_cycles=bad_cycles,
-            total_cycles=total_cycles,
-    ))
+
+f_sell_safe_case = partial(f_sell_on_threshold, diff=200)
+calculate_safe_case = partial(calculate_, f_buy=f_buy_safe_case, f_sell=f_sell_safe_case)
