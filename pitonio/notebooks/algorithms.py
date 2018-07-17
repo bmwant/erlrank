@@ -6,6 +6,10 @@ def f_buy_safe_case(df):
     price_drops = 0
     desired_drops = 2
     min_value = df.iloc[0]['low']
+    max_value = df.iloc[0]['high']
+    if len(df.index) == 1:  # 1-day cycle
+        return (min_value + max_value) / 2
+
     for i in range(len(df.index)):
         low_value = df.iloc[i]['low']
         if low_value < min_value:
@@ -16,7 +20,6 @@ def f_buy_safe_case(df):
 
 
 def f_sell_on_threshold(df, v, *, diff):
-    # import pdb; pdb.set_trace()
     for i in range(len(df.index)):
         value = df.iloc[i]['high']
         if value - v >= diff:
@@ -47,6 +50,7 @@ def calculate_(df, period, f_buy, f_sell):
         if profit > 0:
             success_cycles += 1
         else:
+            print('We lost: {} $'.format(profit))
             bad_cycles += 1
         total_profit += profit
 
