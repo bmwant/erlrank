@@ -20,7 +20,7 @@ class ResolverManual(object):
 
 
 @singledispatch
-def multiply(a, b):
+def multiply2(a, b):
     print('Generic function for {a}, {b}'.format(a=a, b=b))
 
 
@@ -34,8 +34,8 @@ def multiply_lists(a: list, b: list):
     return sum([val_a*val_b for val_a in a for val_b in b])
 
 
-multiply.register(float, multiply_float)
-multiply.register(list, multiply_lists)
+multiply2.register(float, multiply_float)
+multiply2.register(list, multiply_lists)
 
 
 def methdispatch(func):
@@ -49,7 +49,7 @@ def methdispatch(func):
     return wrapper
 
 
-class ResolverSingleDispatch(object):
+class ResolverMethDispatch(object):
     @methdispatch
     def multiply(self, a, b):
         print('Generic method for {a}, {b}'.format(a=a, b=b))
@@ -153,28 +153,32 @@ class multiply5(object):
 
 
 def main():
-    r1 = ResolverManual()
-    print(r1.multiply())
-    print(r1.multiply(a=1))
-    print(r1.multiply(b=2))
-    print(r1.multiply(a=1, b=2))
+    # r1 = ResolverManual()
+    # multiply1 = r1.multiply
+    # print(multiply1())
+    # print(multiply1(a=1))
+    # print(multiply1(b=2))
+    # print(multiply1(a=1, b=2))
 
-    r2 = ResolverSingleDispatch()
-    print(r2.multiply([3], [4]))
-    print(r2.multiply(3, 4))
-    print(r2.multiply('a', 4))
+    r3 = ResolverMethDispatch()
+    multiply3 = r3.multiply
+    print(multiply3([3], [4]))
+    print(multiply3(3, 4))
+    print(multiply3('a', 4))
 
-    print(multiply(3, 4))
-    print(multiply(4.1, 5.2))
-    print(multiply([1, 2, 3], [4, 5, 6]))
+    # print(multiply2(3, 4))
+    # print(multiply2(4.1, 5.2))
+    # print(multiply2([1, 2, 3], [4, 5, 6]))
 
-    print(multiply4())
-    print(multiply4(5, 6))
+    # print(multiply4())
+    # print(multiply4(5, 6))
+    # print(multiply4(8.0, 9.1))
+    # print(multiply4('d', 4))
 
-    print(multiply5(7, 10))
-    print(multiply5(8.0, 9.0))
-    print(multiply5('b', 4))
-    print(multiply5(3, 4, 5))
+    # print(multiply5(7, 10))
+    # print(multiply5(8.0, 9.0))
+    # print(multiply5('b', 4))
+    # print(multiply5(3, 4, 5))
 
 
 if __name__ == '__main__':
