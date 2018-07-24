@@ -1,6 +1,7 @@
 import unittest
 
 from main import get_content_by_number
+from main import MIN_LINE_LENGTH, MAX_LINE_LEGTH
 
 
 class TestGeneratingContent(unittest.TestCase):
@@ -32,7 +33,11 @@ class TestGeneratingContent(unittest.TestCase):
         self.assertEqual(content, self.BUFFER)
 
     def test_random_string(self):
-        pass
+        content = get_content_by_number(42, self.BUFFER)
+        self.assertTrue(len(content) <= MIN_LINE_LENGTH)
+        self.assertTrue(len(content) <= MAX_LINE_LEGTH)
+        self.assertNotEqual(content, self.BUFFER)
+        self.assertNotEqual(content, self.FIFTH_LINE)
 
     def test_call_without_buffer(self):
         """
